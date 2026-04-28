@@ -6,68 +6,81 @@ namespace GrafickzEditor
 {
     public partial class FormMain : Form
     {
+        // Bitmap pro uložení canvasu aby se nemazal protože to je trošku trapný co si budem
+        Bitmap canvasBitmap;
+        Graphics canvasGraphics;
 
-        // Objekt pro kreslení
-        Graphics mobjGrafika;
-
-        //Bod pro uložení souřadnic výchozího bodu přímky
-        Point mouseCoords;
-
-        // ---
-        // Konstruktor
-        // ---
+        // Proměnné k přímce
+        bool isDrawingLine = false;
+        Point startPoint;
+        Point currentPoint;
 
         public FormMain()
         {
             InitializeComponent();
         }
 
-        // ---
-        // Default nastavení
-        // ---
-
         private void FormMain_Load(object sender, EventArgs e)
         {
-            
-            // Inicializace grafiky na PBox
-            mobjGrafika = pbPlatno.CreateGraphics();
+            // Inicializace Bitmapy na velikost PictureBoxu
+            canvasBitmap = new Bitmap(pbPlatno.Width, pbPlatno.Height);
+            canvasGraphics = Graphics.FromImage(canvasBitmap);
+            canvasGraphics.Clear(Color.White);
 
-        }
-
-        private void pbPlatno_MouseMove(object sender, MouseEventArgs e)
-        {
-
-            // Výpis souřadnic do status panelu
-            statusCoordsLbl.Text = "x: " + e.X + ", y: " + e.Y;
-
-            // Kreslení s podmínkou levého tlačítka
-            if (e.Button == MouseButtons.Left)
-            {
-                mobjGrafika.FillEllipse(Brushes.Black, e.X, e.Y, 10, 10);
-            }
-
+            pbPlatno.Image = canvasBitmap;
         }
 
         private void pbPlatno_MouseDown(object sender, MouseEventArgs e)
         {
-
-            
             if (e.Button == MouseButtons.Right)
             {
-                if (mouseCoords.X == 0 && mouseCoords.Y == 0)
+                if (!isDrawingLine)
                 {
-                    mouseCoords.X = e.X; mouseCoords.Y = e.Y;
-                } else
-                {
-                    mobjGrafika.DrawLine(Pens.Black, mouseCoords.X, mouseCoords.Y, e.X, e.Y);
-                    mouseCoords.X = 0; mouseCoords.Y = 0;
+                    isDrawingLine = true;
+                    startPoint = e.Location;
+                    currentPoint = e.Location;
                 }
+                else
+                {
+                    canvasGraphics.DrawLine(Pens.Black, startPoint, e.Location);
+                    isDrawingLine = false;
+                    pbPlatno.Invalidate();
+                }
+            }
+        }
+
+        private void pbPlatno_MouseMove(object sender, MouseEventArgs e)
+        {
+            statusCoordsLbl.Text = "x: " + e.X + ", y: " + e.Y;
+
+            if (e.Button == MouseButtons.Left)
+            {
+                // Volnokresba
+                canvasGraphics.FillEllipse(Brushes.Black, e.X, e.Y, 10, 10);
+                pbPlatno.Invalidate();
+            }
+            else if (isDrawingLine)
+            {
+                // Update projekce přímky
+                currentPoint = e.Location;
+                pbPlatno.Invalidate();
+            }
+        }
+
+        private void pbPlatno_Paint(object sender, PaintEventArgs e)
+        {
+            // Projekce přímky
+            if (isDrawingLine)
+            {
+                e.Graphics.DrawLine(Pens.Black, startPoint, currentPoint);
             }
         }
 
         private void clearButton_Click(object sender, EventArgs e)
         {
-            mobjGrafika.Clear(Color.White);
+            // Absolutní mazání
+            canvasGraphics.Clear(Color.White);
+            pbPlatno.Invalidate();
         }
     }
 }

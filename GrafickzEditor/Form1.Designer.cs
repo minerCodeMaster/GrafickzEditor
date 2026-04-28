@@ -45,6 +45,7 @@
             this.pbPlatno.Size = new System.Drawing.Size(553, 413);
             this.pbPlatno.TabIndex = 0;
             this.pbPlatno.TabStop = false;
+            this.pbPlatno.Paint += new System.Windows.Forms.PaintEventHandler(this.pbPlatno_Paint);
             this.pbPlatno.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pbPlatno_MouseDown);
             this.pbPlatno.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pbPlatno_MouseMove);
             // 
