@@ -18,8 +18,9 @@ namespace GrafickzEditor
         bool isDrawingLine = false;
         Point startPoint;
         Point currentPoint;
-        Color dColor;
-        decimal brushSize;
+        Color dPrimaryColor;
+        Color dSecondaryColor;
+        int brushSize;
 
         public Pen getPenFromColor(Color color)
         {
@@ -36,8 +37,9 @@ namespace GrafickzEditor
         public FormMain()
         {
             InitializeComponent();
-            dColor = Color.Black;
+            dPrimaryColor = Color.Black;
             brushSize = 10;
+            trackBar1.Value = brushSize;
             numericUpDown1.Value = brushSize;
         }
 
@@ -63,7 +65,39 @@ namespace GrafickzEditor
                 }
                 else
                 {
-                    canvasGraphics.DrawLine(getPenFromColor(dColor), startPoint, e.Location);
+                    //canvasGraphics.DrawLine(getPenFromColor(dPrimaryColor), startPoint, e.Location);
+
+                    float width = (float)brushSize;
+
+                    if (width <= 2)
+                    {
+                        // Simple line (primary color only)
+                        using (Pen pen = new Pen(dPrimaryColor, width))
+                        {
+                            pen.StartCap = LineCap.Round;
+                            pen.EndCap = LineCap.Round;
+                            canvasGraphics.DrawLine(pen, startPoint, e.Location);
+                        }
+                    }
+                    else
+                    {
+                        // Outer line (border - primary color)
+                        using (Pen outerPen = new Pen(dPrimaryColor, width))
+                        {
+                            outerPen.StartCap = LineCap.Round;
+                            outerPen.EndCap = LineCap.Round;
+                            canvasGraphics.DrawLine(outerPen, startPoint, e.Location);
+                        }
+
+                        // Inner line (fill - secondary color, 1px inset on each side)
+                        using (Pen innerPen = new Pen(dSecondaryColor, width - 2))
+                        {
+                            innerPen.StartCap = LineCap.Round;
+                            innerPen.EndCap = LineCap.Round;
+                            canvasGraphics.DrawLine(innerPen, startPoint, e.Location);
+                        }
+                    }
+
                     isDrawingLine = false;
                     pbPlatno.Invalidate();
                 }
@@ -77,7 +111,7 @@ namespace GrafickzEditor
             if (e.Button == MouseButtons.Left)
             {
                 // Volnokresba
-                canvasGraphics.FillEllipse(getBrushFromColor(dColor), e.X, e.Y, (float)brushSize, (float)brushSize);
+                canvasGraphics.FillEllipse(getBrushFromColor(dPrimaryColor), e.X, e.Y, (float)brushSize, (float)brushSize);
                 pbPlatno.Invalidate();
             }
             else if (isDrawingLine)
@@ -90,10 +124,35 @@ namespace GrafickzEditor
 
         private void pbPlatno_Paint(object sender, PaintEventArgs e)
         {
-            // Projekce přímky
             if (isDrawingLine)
             {
-                e.Graphics.DrawLine(getPenFromColor(dColor), startPoint, currentPoint);
+                float width = (float)brushSize;
+
+                if (width <= 2)
+                {
+                    using (Pen pen = new Pen(dPrimaryColor, width))
+                    {
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
+                        e.Graphics.DrawLine(pen, startPoint, currentPoint);
+                    }
+                }
+                else
+                {
+                    using (Pen outerPen = new Pen(dPrimaryColor, width))
+                    {
+                        outerPen.StartCap = LineCap.Round;
+                        outerPen.EndCap = LineCap.Round;
+                        e.Graphics.DrawLine(outerPen, startPoint, currentPoint);
+                    }
+
+                    using (Pen innerPen = new Pen(dSecondaryColor, width - 2))
+                    {
+                        innerPen.StartCap = LineCap.Round;
+                        innerPen.EndCap = LineCap.Round;
+                        e.Graphics.DrawLine(innerPen, startPoint, currentPoint);
+                    }
+                }
             }
         }
 
@@ -108,7 +167,8 @@ namespace GrafickzEditor
         {
             Button senderButton = (Button)sender;
 
-            dColor = senderButton.BackColor;
+            dPrimaryColor = senderButton.BackColor;
+            primaryColorBtn.BackColor = dPrimaryColor;
         }
 
         private void novýToolStripMenuItem_Click(object sender, EventArgs e)
@@ -124,16 +184,6 @@ namespace GrafickzEditor
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                //string ext = Path.GetExtension(openFileDialog1.FileName);
-                //switch (ext)
-                //{
-                //    case ".jpg":
-                //        format = ImageFormat.Jpeg;
-                //        break;
-                //    case ".png":
-                //        format = ImageFormat.Png;
-                //        break;
-                //}
                 pbPlatno.Image = new Bitmap(openFileDialog1.FileName);
             }
         }
@@ -145,16 +195,6 @@ namespace GrafickzEditor
 
             if(saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                //string ext = Path.GetExtension(saveFileDialog1.FileName);
-                //switch(ext)
-                //{
-                //    case ".jpg":
-                //        format = ImageFormat.Jpeg;
-                //        break;
-                //    case ".png":
-                //        format = ImageFormat.Png;
-                //        break;
-                //}
                 pbPlatno.Image.Save(saveFileDialog1.FileName, format);
             }
         }
@@ -163,7 +203,39 @@ namespace GrafickzEditor
         {
             NumericUpDown numeric = (NumericUpDown)sender;
 
+            if (numeric.Value > trackBar1.Maximum)
+            {
+                numeric.Value = trackBar1.Maximum;
+                trackBar1.Value = trackBar1.Maximum;
+                brushSize = trackBar1.Maximum;
+                return;
+            }
+
+            brushSize = (int)numeric.Value;
+            trackBar1.Value = (int)numeric.Value;
+        }
+
+        private void secondaryColorBtn_Click(object sender, EventArgs e)
+        {
+            Button secondaryButton = (Button)sender;
+
+            Button primaryButton = primaryColorBtn;
+
+            Color secondaryColor = secondaryButton.BackColor;
+
+            secondaryColorBtn.BackColor = primaryButton.BackColor;
+            dSecondaryColor = primaryButton.BackColor;
+
+            primaryButton.BackColor = secondaryColor;
+            dPrimaryColor = secondaryColor;
+        }
+
+        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        {
+            TrackBar numeric = (TrackBar)sender;
+
             brushSize = numeric.Value;
+            numericUpDown1.Value = (decimal)numeric.Value;
         }
     }
 }

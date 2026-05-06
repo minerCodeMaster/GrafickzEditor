@@ -47,10 +47,16 @@
             this.uložitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.secondaryColorBtn = new System.Windows.Forms.Button();
+            this.primaryColorBtn = new System.Windows.Forms.Button();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.pbPlatno)).BeginInit();
             this.statusCoords.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -83,7 +89,7 @@
             this.statusCoordsLbl});
             this.statusCoords.Location = new System.Drawing.Point(0, 428);
             this.statusCoords.Name = "statusCoords";
-            this.statusCoords.Size = new System.Drawing.Size(769, 22);
+            this.statusCoords.Size = new System.Drawing.Size(987, 22);
             this.statusCoords.TabIndex = 2;
             this.statusCoords.Text = "statusStrip1";
             // 
@@ -98,7 +104,7 @@
             this.btnRed.BackColor = System.Drawing.Color.Red;
             this.btnRed.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.btnRed.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRed.Location = new System.Drawing.Point(657, 27);
+            this.btnRed.Location = new System.Drawing.Point(6, 3);
             this.btnRed.Name = "btnRed";
             this.btnRed.Size = new System.Drawing.Size(20, 20);
             this.btnRed.TabIndex = 3;
@@ -110,7 +116,7 @@
             this.button1.BackColor = System.Drawing.Color.Black;
             this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(683, 27);
+            this.button1.Location = new System.Drawing.Point(32, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(20, 20);
             this.button1.TabIndex = 4;
@@ -122,7 +128,7 @@
             this.button2.BackColor = System.Drawing.Color.White;
             this.button2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button2.Location = new System.Drawing.Point(709, 27);
+            this.button2.Location = new System.Drawing.Point(58, 3);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(20, 20);
             this.button2.TabIndex = 5;
@@ -134,7 +140,7 @@
             this.button3.BackColor = System.Drawing.Color.Orange;
             this.button3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3.Location = new System.Drawing.Point(737, 27);
+            this.button3.Location = new System.Drawing.Point(84, 3);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(20, 20);
             this.button3.TabIndex = 6;
@@ -146,7 +152,7 @@
             this.button4.BackColor = System.Drawing.Color.Yellow;
             this.button4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Location = new System.Drawing.Point(657, 53);
+            this.button4.Location = new System.Drawing.Point(6, 29);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(20, 20);
             this.button4.TabIndex = 7;
@@ -158,7 +164,7 @@
             this.button5.BackColor = System.Drawing.Color.Green;
             this.button5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button5.Location = new System.Drawing.Point(683, 53);
+            this.button5.Location = new System.Drawing.Point(32, 29);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(20, 20);
             this.button5.TabIndex = 8;
@@ -170,7 +176,7 @@
             this.button6.BackColor = System.Drawing.Color.Blue;
             this.button6.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button6.Location = new System.Drawing.Point(709, 53);
+            this.button6.Location = new System.Drawing.Point(58, 29);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(20, 20);
             this.button6.TabIndex = 9;
@@ -182,7 +188,7 @@
             this.button7.BackColor = System.Drawing.Color.Purple;
             this.button7.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.button7.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button7.Location = new System.Drawing.Point(737, 53);
+            this.button7.Location = new System.Drawing.Point(84, 29);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(20, 20);
             this.button7.TabIndex = 10;
@@ -195,7 +201,7 @@
             this.toolStripMenuItem1});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(769, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(987, 24);
             this.menuStrip1.TabIndex = 11;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -212,21 +218,21 @@
             // novýToolStripMenuItem
             // 
             this.novýToolStripMenuItem.Name = "novýToolStripMenuItem";
-            this.novýToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.novýToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.novýToolStripMenuItem.Text = "Nový";
             this.novýToolStripMenuItem.Click += new System.EventHandler(this.novýToolStripMenuItem_Click);
             // 
             // otevřítToolStripMenuItem
             // 
             this.otevřítToolStripMenuItem.Name = "otevřítToolStripMenuItem";
-            this.otevřítToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.otevřítToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.otevřítToolStripMenuItem.Text = "Otevřít";
             this.otevřítToolStripMenuItem.Click += new System.EventHandler(this.otevřítToolStripMenuItem_Click);
             // 
             // uložitToolStripMenuItem
             // 
             this.uložitToolStripMenuItem.Name = "uložitToolStripMenuItem";
-            this.uložitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.uložitToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.uložitToolStripMenuItem.Text = "Uložit";
             this.uložitToolStripMenuItem.Click += new System.EventHandler(this.uložitToolStripMenuItem_Click);
             // 
@@ -234,11 +240,59 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.numericUpDown1);
+            this.panel1.Controls.Add(this.trackBar1);
+            this.panel1.Controls.Add(this.btnRed);
+            this.panel1.Controls.Add(this.button1);
+            this.panel1.Controls.Add(this.button7);
+            this.panel1.Controls.Add(this.button2);
+            this.panel1.Controls.Add(this.button6);
+            this.panel1.Controls.Add(this.button3);
+            this.panel1.Controls.Add(this.button5);
+            this.panel1.Controls.Add(this.button4);
+            this.panel1.Location = new System.Drawing.Point(657, 27);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(318, 398);
+            this.panel1.TabIndex = 13;
+            // 
+            // trackBar1
+            // 
+            this.trackBar1.Location = new System.Drawing.Point(6, 55);
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(200, 45);
+            this.trackBar1.TabIndex = 11;
+            this.trackBar1.ValueChanged += new System.EventHandler(this.trackBar1_ValueChanged);
+            // 
+            // secondaryColorBtn
+            // 
+            this.secondaryColorBtn.BackColor = System.Drawing.Color.White;
+            this.secondaryColorBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.secondaryColorBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.secondaryColorBtn.Location = new System.Drawing.Point(12, 62);
+            this.secondaryColorBtn.Name = "secondaryColorBtn";
+            this.secondaryColorBtn.Size = new System.Drawing.Size(40, 40);
+            this.secondaryColorBtn.TabIndex = 13;
+            this.secondaryColorBtn.UseVisualStyleBackColor = false;
+            this.secondaryColorBtn.Click += new System.EventHandler(this.secondaryColorBtn_Click);
+            // 
+            // primaryColorBtn
+            // 
+            this.primaryColorBtn.BackColor = System.Drawing.Color.Black;
+            this.primaryColorBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.primaryColorBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.primaryColorBtn.Location = new System.Drawing.Point(30, 82);
+            this.primaryColorBtn.Name = "primaryColorBtn";
+            this.primaryColorBtn.Size = new System.Drawing.Size(40, 40);
+            this.primaryColorBtn.TabIndex = 14;
+            this.primaryColorBtn.UseVisualStyleBackColor = false;
+            // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(657, 80);
+            this.numericUpDown1.Location = new System.Drawing.Point(213, 55);
             this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(100, 20);
+            this.numericUpDown1.Size = new System.Drawing.Size(92, 20);
             this.numericUpDown1.TabIndex = 12;
             this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
             // 
@@ -246,16 +300,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(769, 450);
-            this.Controls.Add(this.numericUpDown1);
-            this.Controls.Add(this.button7);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.btnRed);
+            this.ClientSize = new System.Drawing.Size(987, 450);
+            this.Controls.Add(this.primaryColorBtn);
+            this.Controls.Add(this.secondaryColorBtn);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusCoords);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.clearButton);
@@ -269,6 +317,9 @@
             this.statusCoords.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -296,6 +347,10 @@
         private System.Windows.Forms.ToolStripMenuItem novýToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button secondaryColorBtn;
+        private System.Windows.Forms.Button primaryColorBtn;
+        private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
     }
 }
