@@ -2,101 +2,113 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Windows.Forms;
-using System.Xml.Schema;
 
 namespace GrafickzEditor
 {
     public partial class FormMain : Form
     {
-        // Bitmap pro uložení canvasu aby se nemazal protože to je trošku trapný co si budem
+        // Bitmapa = naše plátno (uložený obrázek)
         Bitmap canvasBitmap;
+
+        // Objekt pro kreslení na bitmapu
         Graphics canvasGraphics;
 
-        // Proměnné k přímce
+        // Stav kreslení čáry
         bool isDrawingLine = false;
+
+        // Body pro čáru
         Point startPoint;
         Point currentPoint;
-        Color dPrimaryColor;
-        Color dSecondaryColor;
-        int brushSize;
 
-        public Pen getPenFromColor(Color color)
-        {
-            if (color == null) { return Pens.Black; }
-            return new Pen(color, (float)brushSize);
-        }
+        //Bod pro kreslení
+        Point lastPoint;
 
-        public Brush getBrushFromColor(Color color)
-        {
-            if (color == null) { return new SolidBrush(Color.Black); }
-            return new SolidBrush(color);
-        }
+        // Barvy a velikost
+        Color primaryColor = Color.Black;
+        Color secondaryColor = Color.White;
+        int brushSize = 10;
 
         public FormMain()
         {
             InitializeComponent();
-            dPrimaryColor = Color.Black;
-            brushSize = 10;
+
+            // Nastavení UI prvků podle výchozí velikosti
             trackBar1.Value = brushSize;
             numericUpDown1.Value = brushSize;
+            trackBar1.SetRange(1, 100);
         }
 
         private void FormMain_Load(object sender, EventArgs e)
         {
-            // Inicializace Bitmapy na velikost PictureBoxu
+            // Vytvoření prázdného plátna
             canvasBitmap = new Bitmap(pbPlatno.Width, pbPlatno.Height);
             canvasGraphics = Graphics.FromImage(canvasBitmap);
+            canvasGraphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Vyplnění bílou barvou
             canvasGraphics.Clear(Color.White);
 
             pbPlatno.Image = canvasBitmap;
         }
 
+        // ====== HLAVNÍ KRESLÍCÍ FUNKCE ======
+        private void DrawLine(Graphics g, Point start, Point end)
+        {
+            float width = brushSize;
+
+            if (width <= 2)
+            {
+                // Jednoduchá čára (jen primary barva)
+                using (Pen pen = new Pen(primaryColor, width))
+                {
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+                    g.DrawLine(pen, start, end);
+                }
+            }
+            else
+            {
+                // Vnější čára (primary barva)
+                using (Pen outerPen = new Pen(primaryColor, width))
+                {
+                    outerPen.StartCap = LineCap.Round;
+                    outerPen.EndCap = LineCap.Round;
+                    g.DrawLine(outerPen, start, end);
+                }
+
+                // Vnitřní čára (secondary barva)
+                using (Pen innerPen = new Pen(secondaryColor, width - 2))
+                {
+                    innerPen.StartCap = LineCap.Round;
+                    innerPen.EndCap = LineCap.Round;
+                    g.DrawLine(innerPen, start, end);
+                }
+            }
+        }
+
         private void pbPlatno_MouseDown(object sender, MouseEventArgs e)
         {
+            // Levé tlačítko pro kreslení
+            if (e.Button == MouseButtons.Left)
+            {
+                lastPoint = e.Location;
+            }
+
+            // Pravé tlačítko = kreslení čáry (klik → klik)
             if (e.Button == MouseButtons.Right)
             {
                 if (!isDrawingLine)
                 {
+                    // Začátek čáry
                     isDrawingLine = true;
                     startPoint = e.Location;
                     currentPoint = e.Location;
                 }
                 else
                 {
-                    //canvasGraphics.DrawLine(getPenFromColor(dPrimaryColor), startPoint, e.Location);
-
-                    float width = (float)brushSize;
-
-                    if (width <= 2)
-                    {
-                        // Simple line (primary color only)
-                        using (Pen pen = new Pen(dPrimaryColor, width))
-                        {
-                            pen.StartCap = LineCap.Round;
-                            pen.EndCap = LineCap.Round;
-                            canvasGraphics.DrawLine(pen, startPoint, e.Location);
-                        }
-                    }
-                    else
-                    {
-                        // Outer line (border - primary color)
-                        using (Pen outerPen = new Pen(dPrimaryColor, width))
-                        {
-                            outerPen.StartCap = LineCap.Round;
-                            outerPen.EndCap = LineCap.Round;
-                            canvasGraphics.DrawLine(outerPen, startPoint, e.Location);
-                        }
-
-                        // Inner line (fill - secondary color, 1px inset on each side)
-                        using (Pen innerPen = new Pen(dSecondaryColor, width - 2))
-                        {
-                            innerPen.StartCap = LineCap.Round;
-                            innerPen.EndCap = LineCap.Round;
-                            canvasGraphics.DrawLine(innerPen, startPoint, e.Location);
-                        }
-                    }
+                    // Konec čáry → vykreslení do bitmapy
+                    DrawLine(canvasGraphics, startPoint, e.Location);
 
                     isDrawingLine = false;
                     pbPlatno.Invalidate();
@@ -106,17 +118,38 @@ namespace GrafickzEditor
 
         private void pbPlatno_MouseMove(object sender, MouseEventArgs e)
         {
-            statusCoordsLbl.Text = "x: " + e.X + ", y: " + e.Y;
+            // Zobrazení souřadnic myši
+            statusCoordsLbl.Text = $"x: {e.X}, y: {e.Y}";
 
+            // Levé tlačítko = kreslení štětcem (plynulé)
             if (e.Button == MouseButtons.Left)
             {
-                // Volnokresba
-                canvasGraphics.FillEllipse(getBrushFromColor(dPrimaryColor), e.X, e.Y, (float)brushSize, (float)brushSize);
+                float dx = e.X - lastPoint.X;
+                float dy = e.Y - lastPoint.Y;
+
+                float distance = (float)Math.Sqrt(dx * dx + dy * dy);
+
+                int steps = (int)(distance / 2f) + 1;
+
+                for (int i = 0; i < steps; i++)
+                {
+                    float t = (float)i / steps;
+
+                    float x = lastPoint.X + dx * t;
+                    float y = lastPoint.Y + dy * t;
+
+                    using (Brush b = new SolidBrush(primaryColor))
+                    {
+                        canvasGraphics.FillEllipse(b, x, y, brushSize, brushSize);
+                    }
+                }
+
+                lastPoint = e.Location;
                 pbPlatno.Invalidate();
             }
             else if (isDrawingLine)
             {
-                // Update projekce přímky
+                // Náhled čáry (tam pořád zůstává inner/outer efekt)
                 currentPoint = e.Location;
                 pbPlatno.Invalidate();
             }
@@ -124,118 +157,84 @@ namespace GrafickzEditor
 
         private void pbPlatno_Paint(object sender, PaintEventArgs e)
         {
+            // Náhled čáry (zatím se nekreslí do bitmapy)
             if (isDrawingLine)
             {
-                float width = (float)brushSize;
-
-                if (width <= 2)
-                {
-                    using (Pen pen = new Pen(dPrimaryColor, width))
-                    {
-                        pen.StartCap = LineCap.Round;
-                        pen.EndCap = LineCap.Round;
-                        e.Graphics.DrawLine(pen, startPoint, currentPoint);
-                    }
-                }
-                else
-                {
-                    using (Pen outerPen = new Pen(dPrimaryColor, width))
-                    {
-                        outerPen.StartCap = LineCap.Round;
-                        outerPen.EndCap = LineCap.Round;
-                        e.Graphics.DrawLine(outerPen, startPoint, currentPoint);
-                    }
-
-                    using (Pen innerPen = new Pen(dSecondaryColor, width - 2))
-                    {
-                        innerPen.StartCap = LineCap.Round;
-                        innerPen.EndCap = LineCap.Round;
-                        e.Graphics.DrawLine(innerPen, startPoint, currentPoint);
-                    }
-                }
+                DrawLine(e.Graphics, startPoint, currentPoint);
             }
         }
 
         private void clearButton_Click(object sender, EventArgs e)
         {
-            // Absolutní mazání
+            // Vymazání plátna
             canvasGraphics.Clear(Color.White);
             pbPlatno.Invalidate();
         }
 
         private void btnColor_Click(object sender, EventArgs e)
         {
-            Button senderButton = (Button)sender;
+            // Nastavení primární barvy
+            Button btn = (Button)sender;
 
-            dPrimaryColor = senderButton.BackColor;
-            primaryColorBtn.BackColor = dPrimaryColor;
+            primaryColor = btn.BackColor;
+            primaryColorBtn.BackColor = primaryColor;
+        }
+
+        private void secondaryColorBtn_Click(object sender, EventArgs e)
+        {
+            // Prohození primary a secondary barvy
+            Color temp = primaryColor;
+            primaryColor = secondaryColor;
+            secondaryColor = temp;
+
+            primaryColorBtn.BackColor = primaryColor;
+            secondaryColorBtn.BackColor = secondaryColor;
         }
 
         private void novýToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // Nový obrázek
             canvasGraphics.Clear(Color.White);
             pbPlatno.Invalidate();
         }
 
         private void otevřítToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = "bmp files (*.bmp)|*.bmp";
-            ImageFormat format = ImageFormat.Jpeg;
+            openFileDialog1.Filter = "Image files (*.bmp;*.jpg)|*.bmp;*.jpg";
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                pbPlatno.Image = new Bitmap(openFileDialog1.FileName);
+                // Načtení obrázku
+                canvasBitmap = new Bitmap(openFileDialog1.FileName);
+                canvasGraphics = Graphics.FromImage(canvasBitmap);
+
+                pbPlatno.Image = canvasBitmap;
+                pbPlatno.Invalidate();
             }
         }
 
         private void uložitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            saveFileDialog1.Filter = "bmp files (*.bmp)|*.bmp";
-            ImageFormat format = ImageFormat.Jpeg;
+            saveFileDialog1.Filter = "JPEG (*.jpg)|*.jpg";
 
-            if(saveFileDialog1.ShowDialog() == DialogResult.OK)
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                pbPlatno.Image.Save(saveFileDialog1.FileName, format);
+                canvasBitmap.Save(saveFileDialog1.FileName, ImageFormat.Jpeg);
             }
-        }
-
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
-        {
-            NumericUpDown numeric = (NumericUpDown)sender;
-
-            if (numeric.Value > trackBar1.Maximum)
-            {
-                numeric.Value = trackBar1.Maximum;
-                trackBar1.Value = trackBar1.Maximum;
-                brushSize = trackBar1.Maximum;
-                return;
-            }
-
-            brushSize = (int)numeric.Value;
-            trackBar1.Value = (int)numeric.Value;
-        }
-
-        private void secondaryColorBtn_Click(object sender, EventArgs e)
-        {
-            Button secondaryButton = (Button)sender;
-
-            Button primaryButton = primaryColorBtn;
-
-            Color secondaryColor = secondaryButton.BackColor;
-
-            secondaryColorBtn.BackColor = primaryButton.BackColor;
-            dSecondaryColor = primaryButton.BackColor;
-
-            primaryButton.BackColor = secondaryColor;
-            dPrimaryColor = secondaryColor;
         }
 
         private void trackBar1_ValueChanged(object sender, EventArgs e)
         {
-            TrackBar numeric = (TrackBar)sender;
+            // Změna velikosti štětce (slider)
+            brushSize = trackBar1.Value;
+            numericUpDown1.Value = brushSize;
+        }
 
-            brushSize = numeric.Value;
-            numericUpDown1.Value = (decimal)numeric.Value;
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            // Změna velikosti štětce (číselník)
+            brushSize = (int)numericUpDown1.Value;
+            trackBar1.Value = brushSize;
         }
     }
 }
